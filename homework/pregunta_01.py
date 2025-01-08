@@ -4,7 +4,20 @@
 """
 Escriba el codigo que ejecute la accion solicitada en cada pregunta.
 """
+import os
+import pandas as pd
+import csv
 
+def save_output(dataframe, name, output_directory="files/output"):
+    """Save output to a file."""
+
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
+
+    dataframe.to_csv(
+        f"{output_directory}/{name}.csv",
+        index=False,
+    )
 
 def pregunta_01():
     """
@@ -71,3 +84,52 @@ def pregunta_01():
 
 
     """
+    # Leer archivos y crear dataset TRAIN
+    train_dataset = []
+    # make a for loop to read the train/test directories
+    for root, directories, _ in os.walk("files/input/train"):
+        # make a for loop to read the sentiment directories
+        for dir in directories:
+            # get the sentiment of the directory
+            sentiment = dir
+            # get the path of the directory
+            dir_path = os.path.join(root, dir)
+            # make a for loop to read the phrases in the file
+            for file in os.listdir(os.path.join(root, dir)):
+                # get the path of the file
+                path_to_file= os.path.join(dir_path, file)
+                # open the file and read the phrase
+                with open(path_to_file, "r") as f:
+                    phrase = f.read()
+                    train_dataset.append([phrase, sentiment])
+
+    # Leer archivos y crear dataset TEST
+    test_dataset = []
+    # make a for loop to read the train/test directories
+    for root, directories, _ in os.walk("files/input/test"):
+        # make a for loop to read the sentiment directories
+        for dir in directories:
+            # get the sentiment of the directory
+            sentiment = dir
+            # get the path of the directory
+            dir_path = os.path.join(root, dir)
+            # make a for loop to read the phrases in the file
+            for file in os.listdir(os.path.join(root, dir)):
+                # get the path of the file
+                path_to_file= os.path.join(dir_path, file)
+                # open the file and read the phrase
+                with open(path_to_file, "r") as f:
+                    phrase = f.read()
+                    test_dataset.append([phrase, sentiment])
+
+    # Guardar dataset
+    train_df = pd.DataFrame(train_dataset)
+    test_df = pd.DataFrame(test_dataset)
+    
+    train_df.columns = ["phrase", "target"]
+    test_df.columns = ["phrase", "target"]
+
+    save_output(train_df, "train_dataset")
+    save_output(test_df, "test_dataset")
+
+pregunta_01()
